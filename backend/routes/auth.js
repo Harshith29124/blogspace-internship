@@ -7,7 +7,7 @@ const router = express.Router();
 // Generate JWT Token
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
 
@@ -108,16 +108,10 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: 'Account is deactivated'
-      });
-    }
+
 
     // Check password
-    const isValidPassword = await user.comparePassword(password);
+    const isValidPassword = await user.matchPassword(password);
     if (!isValidPassword) {
       return res.status(401).json({
         success: false,

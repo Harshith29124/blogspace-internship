@@ -1,55 +1,108 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchMyPosts();
+  }, []);
+
+  const fetchMyPosts = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get('http://localhost:5000/api/posts/user/my-posts', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPosts(response.data.data);
+    } catch (err) {
+      setError('Failed to load posts');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleDelete = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        const token = localStorage.getItem('authToken');
+        await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchMyPosts(); // Refresh posts
+      } catch (err) {
+        alert('Failed to delete post');
+      }
+    }
+  };
+
+  if (loading) return <div className="loading-spinner">Loading your posts...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+
   return (
-    <div className="dashboard">
-      <nav className="navbar">
-        <div className="nav-content">
-          <h1 className="nav-title">BlogSpace Dashboard</h1>
-          <div className="nav-right">
-            <span className="welcome-text">Welcome, {user?.name}!</span>
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
-            </button>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1>Welcome back, {user?.name}!</h1>
+        <Link to="/create-post" className="btn btn-primary">
+          <span>+</span> Create New Post
+        </Link>
+      </div>
+
+      <div className="posts-section">
+        <h2>Your Posts ({posts.length})</h2>
+        
+        {posts.length === 0 ? (
+          <div className="empty-state">
+            <p>You haven't created any posts yet.</p>
+            <Link to="/create-post" className="btn btn-outline">
+              Write your first post
+            </Link>
           </div>
-        </div>
-      </nav>
-      
-      <main className="main-content">
-        <div className="dashboard-content">
-          <div className="success-card">
-            <h2>🎉 Day 2 Complete!</h2>
-            <p>Your authentication system is working perfectly!</p>
-            <div className="user-info">
-              <h3>User Details:</h3>
-              <p><strong>Name:</strong> {user?.name}</p>
-              <p><strong>Email:</strong> {user?.email}</p>
-              <p><strong>Role:</strong> {user?.role}</p>
-              <p><strong>User ID:</strong> {user?.id}</p>
-            </div>
-            <div className="next-steps">
-              <h3>What's Next?</h3>
-              <ul>
-                <li>✅ User Registration & Login Complete</li>
-                <li>✅ JWT Token Authentication Working</li>
-                <li>✅ Protected Routes Implemented</li>
-                <li>🚀 Ready for Day 3: Blog Post CRUD!</li>
-              </ul>
-            </div>
+        ) : (
+          <div className="posts-grid">
+            {posts.map(post => (
+              <div key={post._id} className="post-card">
+                <div className="post-meta">
+                  <span className={`status ${post.status}`}>{post.status}</span>
+                  <span className="date">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                <h3 className="post-title">{post.title}</h3>
+                <p className="post-excerpt">{post.excerpt}</p>
+                
+                <div className="post-stats">
+                  <span>{post.readTime} min read</span>
+                  {post.tags && <span>{post.tags.length} tags</span>}
+                </div>
+                
+                <div className="post-actions">
+                  <Link to={`/post/${post._id}`} className="btn btn-small">
+                    View
+                  </Link>
+                  <Link to={`/edit-post/${post._id}`} className="btn btn-small btn-outline">
+                    Edit
+                  </Link>
+                  <button 
+                    onClick={() => handleDelete(post._id)}
+                    className="btn btn-small btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   );
 };

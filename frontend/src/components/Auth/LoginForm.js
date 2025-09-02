@@ -94,7 +94,7 @@ const LoginForm = () => {
               />
               <span>Remember me</span>
             </label>
-            <a href="#" className="forgot-link">Forgot password?</a>
+            <button type="button" className="forgot-link">Forgot password?</button>
           </div>
 
           <button
