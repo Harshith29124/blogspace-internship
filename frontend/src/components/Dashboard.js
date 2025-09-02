@@ -18,7 +18,7 @@ const Dashboard = () => {
   const fetchMyPosts = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get('http://localhost:5000/api/posts/user/my-posts', {
+      const response = await axios.get('https://blogspace-internship.onrender.com/api/posts/user/my-posts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPosts(response.data.data);
@@ -33,7 +33,7 @@ const Dashboard = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         const token = localStorage.getItem('authToken');
-        await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        await axios.delete(`https://blogspace-internship.onrender.com/api/posts/${postId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchMyPosts(); // Refresh posts

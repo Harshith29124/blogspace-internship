@@ -21,7 +21,7 @@ const AdminPanel = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get('http://localhost:5000/api/admin/users', {
+      const response = await axios.get('https://blogspace-internship.onrender.com/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data.data);
@@ -33,7 +33,7 @@ const AdminPanel = () => {
   const fetchPosts = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get('http://localhost:5000/api/admin/posts', {
+      const response = await axios.get('https://blogspace-internship.onrender.com/api/admin/posts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPosts(response.data.data);
@@ -47,7 +47,7 @@ const AdminPanel = () => {
   const updateUserRole = async (userId, newRole) => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.put(`http://localhost:5000/api/admin/users/${userId}/role`, 
+      await axios.put(`https://blogspace-internship.onrender.com/api/admin/users/${userId}/role`, 
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -61,7 +61,7 @@ const AdminPanel = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         const token = localStorage.getItem('authToken');
-        await axios.delete(`http://localhost:5000/api/admin/posts/${postId}`, {
+        await axios.delete(`https://blogspace-internship.onrender.com/api/admin/posts/${postId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPosts(); // Refresh posts

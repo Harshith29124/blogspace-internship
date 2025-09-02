@@ -84,7 +84,7 @@ const CreatePost = () => {
         status: formData.status
       };
 
-      await axios.post('http://localhost:5000/api/posts', postData, {
+      await axios.post('https://blogspace-internship.onrender.com/api/posts', postData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
