@@ -3,14 +3,11 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
 
 import './CreatePost.css';
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -50,8 +47,8 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     if (!formData.title.trim()) {
       setError('Title is required');
@@ -74,23 +71,30 @@ const CreatePost = () => {
     }
 
     try {
+      const token = localStorage.getItem('authToken');
+      const tagsArray = formData.tags 
+        ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        : [];
+
       const postData = {
         title: formData.title,
         content: formData.content,
         excerpt: formData.excerpt,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        readTime: Math.ceil(formData.content.split(' ').length / 200) // Rough estimate
+        tags: tagsArray,
+        status: formData.status
       };
 
-      await api.post('/api/posts', postData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      await axios.post('https://blogspace-internship.onrender.com/api/posts', postData, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create post');
+      setError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Failed to create post'
+      );
     } finally {
       setLoading(false);
     }

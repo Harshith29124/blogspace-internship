@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import CreatePost from './components/CreatePost';
 import PostDetail from './components/PostDetail';
 import AllPosts from './components/AllPosts';
+import LandingPage from './components/LandingPage';
 import AdminPanel from './components/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
@@ -20,10 +21,11 @@ function App() {
           <Navbar />
           <main className="main-content">
             <Routes>
-              {/* Redirect root to login if not authenticated, otherwise to dashboard */}
-              <Route path="/" element={<ProtectedRoute><AllPosts /></ProtectedRoute>} />
+              {/* Show landing page for unauthenticated users, posts for authenticated */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<RegisterForm />} />
+              <Route path="/posts" element={<ProtectedRoute><AllPosts /></ProtectedRoute>} />
               <Route path="/post/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
               <Route 
                 path="/dashboard" 

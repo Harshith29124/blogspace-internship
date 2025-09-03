@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './AdminPanel.css';
@@ -9,26 +9,36 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
 
   useEffect(() => {
     if (user?.role === 'admin') {
-      fetchData();
+      fetchUsers();
+      fetchPosts();
     }
   }, [user]);
 
-  const fetchData = async () => {
+  const fetchUsers = async () => {
     try {
-      const [usersResponse, postsResponse] = await Promise.all([
-        api.get('/api/admin/users'),
-        api.get('/api/admin/posts')
-      ]);
-      
-      setUsers(usersResponse.data.data);
-      setPosts(postsResponse.data.data);
-    } catch (err) {
-      setError('Failed to load admin data');
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get('https://blogspace-internship.onrender.com/api/admin/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers(response.data.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get('https://blogspace-internship.onrender.com/api/admin/posts', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPosts(response.data.data);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
     }
@@ -36,20 +46,27 @@ const AdminPanel = () => {
 
   const updateUserRole = async (userId, newRole) => {
     try {
-      await api.put(`/api/admin/users/${userId}/role`, { role: newRole });
-      fetchData(); // Refresh data
-    } catch (err) {
-      setError('Failed to update user role');
+      const token = localStorage.getItem('authToken');
+      await axios.put(`https://blogspace-internship.onrender.com/api/admin/users/${userId}/role`, 
+        { role: newRole },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchUsers(); // Refresh users
+    } catch (error) {
+      alert('Failed to update user role');
     }
   };
 
   const deletePost = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await api.delete(`/api/admin/posts/${postId}`);
-        fetchData(); // Refresh data
-      } catch (err) {
-        setError('Failed to delete post');
+        const token = localStorage.getItem('authToken');
+        await axios.delete(`https://blogspace-internship.onrender.com/api/admin/posts/${postId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchPosts(); // Refresh posts
+      } catch (error) {
+        alert('Failed to delete post');
       }
     }
   };

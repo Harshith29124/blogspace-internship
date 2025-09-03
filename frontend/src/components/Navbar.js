@@ -21,6 +21,7 @@ const Navbar = () => {
         
         {isAuthenticated ? (
           <>
+            <Link to="/posts">Posts</Link>
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/create-post">Write</Link>
             {user?.role === 'admin' && <Link to="/admin">Admin</Link>}

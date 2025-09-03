@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const config = require('./config/config');
 require('dotenv').config();
 
 // Connect to database
@@ -11,12 +12,9 @@ const app = express();
 // Body parser middleware
 app.use(express.json());
 
-// Enable CORS - UPDATED TO INCLUDE NETLIFY URL
+// Enable CORS
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://68b6a41a2a53753299346d9b--tangerine-cupcake-145674.netlify.app'
-  ],
+  origin: config.allowedOrigins,
   credentials: true
 }));
 
@@ -30,8 +28,43 @@ app.get('/', (req, res) => {
   res.json({ message: 'BlogSpace API is running!' });
 });
 
-const PORT = process.env.PORT || 5000;
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: config.nodeEnv,
+    database: 'Connected',
+    jwt: config.jwtSecret === 'default_jwt_secret_for_development_only_change_in_production' ? 'Using default' : 'Configured'
+  });
+});
+
+// Test endpoint for debugging
+app.get('/test-db', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const connectionState = mongoose.connection.readyState;
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    
+    res.json({
+      status: 'Database Test',
+      connectionState: states[connectionState],
+      readyState: connectionState,
+      database: mongoose.connection.name || 'Not connected',
+      host: mongoose.connection.host || 'Not connected'
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Database test failed',
+      message: error.message
+    });
+  }
+});
+
+const PORT = config.port;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(`JWT Secret: ${config.jwtSecret === 'default_jwt_secret_for_development_only_change_in_production' ? 'Using default' : 'Set'}`);
 });

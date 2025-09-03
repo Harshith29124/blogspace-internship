@@ -16,12 +16,20 @@ const AllPosts = () => {
 
   const fetchPosts = async (page = 1) => {
     setLoading(true);
+    setError(null);
     try {
       const response = await api.get(`/api/posts?page=${page}&limit=6`);
-      setPosts(response.data.data);
-      setPagination(response.data.pagination);
+      setPosts(response.data.data || []);
+      setPagination(response.data.pagination || {});
     } catch (err) {
-      setError('Failed to load posts');
+      console.error('Error fetching posts:', err);
+      if (err.response?.status === 404) {
+        setError('No posts found');
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later.');
+      } else {
+        setError('Failed to load posts. Please check your connection.');
+      }
     } finally {
       setLoading(false);
     }
