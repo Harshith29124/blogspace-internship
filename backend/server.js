@@ -11,9 +11,12 @@ const app = express();
 // Body parser middleware
 app.use(express.json());
 
-// Enable CORS
+// Enable CORS - UPDATED TO INCLUDE NETLIFY URL
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://68b6a41a2a53753299346d9b--tangerine-cupcake-145674.netlify.app'
+  ],
   credentials: true
 }));
 
