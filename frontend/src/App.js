@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import LoginForm from './components/Auth/LoginForm';
@@ -20,10 +20,11 @@ function App() {
           <Navbar />
           <main className="main-content">
             <Routes>
-              <Route path="/" element={<AllPosts />} />
+              {/* Redirect root to login if not authenticated, otherwise to dashboard */}
+              <Route path="/" element={<ProtectedRoute><AllPosts /></ProtectedRoute>} />
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<RegisterForm />} />
-              <Route path="/post/:id" element={<PostDetail />} />
+              <Route path="/post/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
               <Route 
                 path="/dashboard" 
                 element={

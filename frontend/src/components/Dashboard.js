@@ -1,44 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
-
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchMyPosts();
+    fetchUserPosts();
   }, []);
 
-  const fetchMyPosts = async () => {
+  const fetchUserPosts = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axios.get('https://blogspace-internship.onrender.com/api/posts/user/my-posts', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/posts/user/my-posts');
       setPosts(response.data.data);
     } catch (err) {
-      setError('Failed to load posts');
+      setError('Failed to load your posts');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (postId) => {
+  const deletePost = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        const token = localStorage.getItem('authToken');
-        await axios.delete(`https://blogspace-internship.onrender.com/api/posts/${postId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchMyPosts(); // Refresh posts
+        await api.delete(`/api/posts/${postId}`);
+        fetchUserPosts(); // Refresh posts
       } catch (err) {
-        alert('Failed to delete post');
+        setError('Failed to delete post');
       }
     }
   };
@@ -92,7 +85,7 @@ const Dashboard = () => {
                     Edit
                   </Link>
                   <button 
-                    onClick={() => handleDelete(post._id)}
+                    onClick={() => deletePost(post._id)}
                     className="btn btn-small btn-danger"
                   >
                     Delete

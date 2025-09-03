@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import './AllPosts.css';
 
 const AllPosts = () => {
@@ -17,7 +17,7 @@ const AllPosts = () => {
   const fetchPosts = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://blogspace-internship.onrender.com/api/posts?page=${page}&limit=6`);
+      const response = await api.get(`/api/posts?page=${page}&limit=6`);
       setPosts(response.data.data);
       setPagination(response.data.pagination);
     } catch (err) {

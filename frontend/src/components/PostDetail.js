@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import './PostDetail.css';
 
 const PostDetail = () => {
@@ -14,7 +15,7 @@ const PostDetail = () => {
 
   const fetchPost = useCallback(async () => {
     try {
-      const response = await axios.get(`https://blogspace-internship.onrender.com/api/posts/${id}`);
+      const response = await api.get(`/api/posts/${id}`);
       setPost(response.data.data);
     } catch (err) {
       setError('Post not found');
@@ -30,10 +31,7 @@ const PostDetail = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        const token = localStorage.getItem('authToken');
-        await axios.delete(`https://blogspace-internship.onrender.com/api/posts/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/api/posts/${id}`);
         navigate('/dashboard');
       } catch (err) {
         alert('Failed to delete post');
