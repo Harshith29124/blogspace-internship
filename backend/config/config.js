@@ -14,6 +14,7 @@ const config = {
   // CORS
   allowedOrigins: [
     'http://localhost:3000',
+    'http://localhost:5173',
     'https://68b6a41a2a53753299346d9b--tangerine-cupcake-145674.netlify.app',
     'https://68b7d67c50b926e6de351b0a--tangerine-cupcake-145674.netlify.app',
     'https://tangerine-cupcake-145674.netlify.app'
@@ -22,10 +23,9 @@ const config = {
 
 // Validate required environment variables
 if (!process.env.MONGO_URI) {
-  console.error('❌ ERROR: MONGO_URI environment variable is required');
-  console.error('   Please set MONGO_URI in your .env file');
-  console.error('   Example: mongodb+srv://username:password@cluster.mongodb.net/blogspace');
-  process.exit(1);
+  console.warn('⚠️  WARNING: MONGO_URI not set. Falling back to local MongoDB at mongodb://127.0.0.1:27017/blogspace');
+  console.warn('   Set MONGO_URI in your .env to use a specific database.');
+  config.mongoURI = 'mongodb://127.0.0.1:27017/blogspace';
 }
 
 if (!process.env.JWT_SECRET) {

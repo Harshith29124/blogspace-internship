@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const connectDB = require('./config/db');
 const config = require('./config/config');
-require('dotenv').config();
 
 // Connect to database
 connectDB();
@@ -11,10 +13,16 @@ const app = express();
 
 // Body parser middleware
 app.use(express.json());
+app.use(helmet());
+app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
 
-// Enable CORS
+// Enable CORS with dynamic origin check
 app.use(cors({
-  origin: config.allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = config.allowedOrigins.includes(origin);
+    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+  },
   credentials: true
 }));
 
