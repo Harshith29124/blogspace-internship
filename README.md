@@ -6,7 +6,7 @@ A modern, feature-rich blogging platform built during a 7-day intensive internsh
 
 ## 🌟 *Live Demo*
 
-- *Frontend*: [Deployed on Netlify]( https://68b6a41a2a53753299346d9b--tangerine-cupcake-145674.netlify.app)
+- *Frontend*: [Deployed on Netlify]( https://68b7d67c50b926e6de351b0a--tangerine-cupcake-145674.netlify.app/login)
 - *Backend API*: [Deployed on Render]( https://blogspace-internship.onrender.com )
 
 )
